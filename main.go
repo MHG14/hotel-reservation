@@ -12,7 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const dbUri = "mongodb://localhost:27017/hotel-reservation"
+const (
+	dbName = "hotel-reservation"
+	dbUri = "mongodb://localhost:27017/hotel-reservation"
+)
 
 var config = fiber.Config(fiber.Config{
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
@@ -30,7 +33,7 @@ func main() {
 	}
 
 	// handlers initialization
-	userHandler := api.NewUserHandler(db.NewMongoUserStore(client))
+	userHandler := api.NewUserHandler(db.NewMongoUserStore(client, dbName))
 
 	app := fiber.New(config)
 	apiv1 := app.Group("api/v1")

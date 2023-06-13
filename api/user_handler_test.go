@@ -16,7 +16,8 @@ import (
 )
 
 const testDbUri = "mongodb://localhost:27017/hotel-reservation"
-const testDbName = "hotel-reservation-test"
+
+// const testDbName = "hotel-reservation-test"
 
 type testDb struct {
 	db.UserStore
@@ -35,7 +36,7 @@ func setup(t *testing.T) *testDb {
 	}
 
 	return &testDb{
-		UserStore: db.NewMongoUserStore(client, testDbName),
+		UserStore: db.NewMongoUserStore(client),
 	}
 }
 
@@ -48,10 +49,10 @@ func TestPostUser(t *testing.T) {
 	app.Post("/", userHandler.HandlePostUser)
 
 	params := types.CreateUserParams{
-		FirstName: "MOhamad",
-		LastName:  "sedghi",
-		Password:  "gafgrqcecr",
-		Email:     "dinamohamadi@gmail.com",
+		FirstName: "Mohamad",
+		LastName:  "Ghamari",
+		Password:  "12345678",
+		Email:     "test@gmail.com",
 	}
 
 	b, _ := json.Marshal(params)

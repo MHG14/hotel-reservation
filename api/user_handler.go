@@ -30,11 +30,14 @@ func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
-	var (
-		id = c.Params("id")
-	)
+	id := c.Params("id")
 
-	user, err := h.userStore.GetUserById(c.Context(), id)
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	user, err := h.userStore.GetUserById(c.Context(), oid)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.JSON(map[string]string{"error": "Not Found"})
@@ -91,7 +94,11 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 
 func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	userId := c.Params("id")
-	if err := h.userStore.DeleteUser(c.Context(), userId); err != nil {
+	oid, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return err
+	}
+	if err := h.userStore.DeleteUser(c.Context(), oid); err != nil {
 		return err
 	}
 	return c.JSON(map[string]string{"deleted": userId})

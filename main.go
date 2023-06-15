@@ -47,7 +47,7 @@ func main() {
 	)
 
 	// auth handlres
-	auth.Post("/auth", authHandler.HandleAuthnticate)
+	auth.Post("/auth", authHandler.HandleAuthenticate)
 
 	// Versioned API routes
 	// user handlers

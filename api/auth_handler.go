@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -15,6 +16,18 @@ import (
 
 type AuthHandler struct {
 	userStore db.UserStore
+}
+
+type genericResp struct {
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
+}
+
+func invalidCredentials(c *fiber.Ctx) error {
+	return c.Status(http.StatusBadRequest).JSON(genericResp{
+		Type: "error",
+		Msg:  "invalid credentials",
+	})
 }
 
 func NewAuthHandler(userStore db.UserStore) *AuthHandler {
@@ -33,7 +46,7 @@ type AuthResponse struct {
 	Token string      `json:"token"`
 }
 
-func (h *AuthHandler) HandleAuthnticate(c *fiber.Ctx) error {
+func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var authParams AuthParams
 	if err := c.BodyParser(&authParams); err != nil {
 		return err
@@ -42,13 +55,13 @@ func (h *AuthHandler) HandleAuthnticate(c *fiber.Ctx) error {
 	user, err := h.userStore.GetUserByEmail(c.Context(), authParams.Email)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return fmt.Errorf("invalid credentials")
+			return invalidCredentials(c)
 		}
 		return err
 	}
 
 	if !types.IsValidPassword(user.EncryptedPassword, authParams.Password) {
-		return fmt.Errorf("invalid credentials")
+		return invalidCredentials(c)
 	}
 
 	resp := AuthResponse{
@@ -62,8 +75,8 @@ func createTokenFromUser(user *types.User) string {
 	now := time.Now()
 	expires := now.Add(time.Hour * 4).Unix()
 	claims := jwt.MapClaims{
-		"id":        user.ID,
-		"email":     user.Email,
+		"id":      user.ID,
+		"email":   user.Email,
 		"expires": expires,
 	}
 

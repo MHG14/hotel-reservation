@@ -56,17 +56,19 @@ func seedHotel(name string, location string, rating float64) {
 	}
 }
 
-func seedUser(fname, lname, email string) {
+func seedUser(isAdmin bool, fname, lname, email, password string) {
 	user, err := types.NewUserFromParams(types.CreateUserParams{
 		Email:     email,
 		FirstName: fname,
 		LastName:  lname,
-		Password:  "supersecurepassword",
+		Password:  password,
 	})
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	user.IsAdmin = isAdmin
 	_, err = userStore.InsertUser(context.TODO(), user)
 	if err != nil {
 		log.Fatal(err)
@@ -77,7 +79,8 @@ func main() {
 	seedHotel("Bellucia", "France", 3.0)
 	seedHotel("Cozy Hotel", "Netherlands", 4.0)
 	seedHotel("Al Khalifa", "Dubai", 1.0)
-	seedUser("Jamess", "Foo", "james@foo.com")
+	seedUser(false, "Jamess", "Foo", "james@foo.com", "supersecurepassword")
+	seedUser(true, "MohamadHasan", "Ghamari", "mhg14@foo.com", "adminpassword")
 }
 
 func init() {

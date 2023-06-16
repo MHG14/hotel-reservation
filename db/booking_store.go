@@ -15,6 +15,7 @@ type BookingStore interface {
 	InsertBooking(context.Context, *types.Booking) (*types.Booking, error)
 	GetBookings(context.Context, bson.M) ([]*types.Booking, error)
 	GetBookingByID(context.Context, primitive.ObjectID) (*types.Booking, error)
+	UpdateBooking(context.Context, primitive.ObjectID, bson.M) error
 }
 
 type MongoBookingStore struct {
@@ -60,4 +61,12 @@ func (m *MongoBookingStore) GetBookingByID(ctx context.Context, id primitive.Obj
 		return nil, err
 	}
 	return &booking, nil
+}
+
+func (s *MongoBookingStore) UpdateBooking(ctx context.Context, id primitive.ObjectID, update bson.M) error {
+	m := bson.M{
+		"$set": update,
+	}
+	_, err := s.coll.UpdateByID(ctx, id, m)
+	return err
 }

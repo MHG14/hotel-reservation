@@ -117,6 +117,5 @@ func init() {
 	hotelStore = db.NewMongoHotelStore(client)
 	roomStore = db.NewMongoRoomStore(client, hotelStore)
 	userStore = db.NewMongoUserStore(client)
-	bookingStore = db.NewMongoBookingStore(client)
 
 }

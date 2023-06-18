@@ -76,7 +76,6 @@ func (m *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*typ
 
 	user.ID = res.InsertedID.(primitive.ObjectID)
 	return user, nil
-
 }
 
 func (m *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {

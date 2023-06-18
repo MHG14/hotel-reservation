@@ -1,7 +1,8 @@
-package middlewares
+package api
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -16,7 +17,8 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
 		token, ok := c.GetReqHeaders()["X-Api-Token"]
 
 		if !ok {
-			fmt.Printf("Unauthorized")
+			fmt.Println("token not present in the header")
+			return ErrUnauthorized()
 		}
 
 		claims, err := validateToken(token)
@@ -27,14 +29,13 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
 		expiresFloat := claims["expires"].(float64)
 		expires := int64(expiresFloat)
 		if time.Now().Unix() > expires {
-			return fmt.Errorf("token expired")
+			return NewError(http.StatusUnauthorized, "token expired")
 		}
 
 		userID, _ := primitive.ObjectIDFromHex(claims["id"].(string))
 		user, err := userStore.GetUserById(c.Context(), userID)
-		fmt.Println(user)
 		if err != nil {
-			return fmt.Errorf("unauthorized")
+			return ErrUnauthorized()
 		}
 		// set the current authenticated user to the context
 		c.Context().SetUserValue("user", user)
@@ -47,27 +48,26 @@ func validateToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			fmt.Println("invalid signing method", token.Header["alg"])
-			return fmt.Errorf("unauthorized"), nil
+			return nil, ErrUnauthorized()
 		}
 		secret := os.Getenv("JWT_SECRET")
-		fmt.Println("NEVER PRINT YOUR SECRET", secret)
 		return []byte(secret), nil
 	})
 
 	if err != nil {
 		fmt.Println("Failed to parse jwt token:", err)
-		return nil, fmt.Errorf("unauthorized")
+		return nil, ErrUnauthorized()
 	}
 
 	if !token.Valid {
 		fmt.Println("invalid token")
-		return nil, fmt.Errorf("unauthorized")
+		return nil, ErrUnauthorized()
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok {
-		return nil, fmt.Errorf("unauthorized")
+		return nil, ErrUnauthorized()
 	}
 	return claims, nil
 }

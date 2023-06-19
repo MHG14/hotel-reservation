@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/mhg14/hotel-reservation/api"
@@ -38,9 +39,14 @@ func main() {
 	admin := fixtures.AddUser(store, "admin", "admin", true)
 	fmt.Println("admin ->", api.CreateTokenFromUser(admin))
 	hotel := fixtures.AddHotel(store, "Al Khalifa", "Dubai", 5.0, nil)
-	fmt.Println("hotelID ->", hotel.ID)
 	room := fixtures.AddRoom(store, "large", true, 98.44, hotel.ID)
-	fmt.Println("roomID ->", room.ID)
 	booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 4))
 	fmt.Println("bookingID ->", booking.ID)
+
+	for i := 0; i < 100; i++ {
+		name := fmt.Sprintf("hotel %d", i)
+		location := fmt.Sprintf("location %d", i)
+
+		fixtures.AddHotel(store, name, location, float64(rand.Intn(5)+1), nil)
+	}
 }

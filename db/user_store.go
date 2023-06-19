@@ -10,6 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type Map map[string]any
+
 const userColl = "user"
 
 type Dropper interface {
@@ -23,7 +25,7 @@ type UserStore interface {
 	GetUserById(context.Context, primitive.ObjectID) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
-	UpdateUser(context.Context, bson.M, types.UpdateUserParams) error
+	UpdateUser(context.Context, Map, types.UpdateUserParams) error
 	DeleteUser(context.Context, primitive.ObjectID) error
 }
 
@@ -78,7 +80,7 @@ func (m *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*typ
 	return user, nil
 }
 
-func (m *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {
+func (m *MongoUserStore) UpdateUser(ctx context.Context, filter Map, params types.UpdateUserParams) error {
 	update := bson.M{
 		"$set": params.ToBSON(),
 	}

@@ -59,6 +59,7 @@ func main() {
 	apiv1.Put("/users/:id", userHandler.HandlePutUser)
 	apiv1.Delete("/users/:id", userHandler.HandleDeleteUser)
 
+
 	// hotel handlers
 	apiv1.Get("hotels", hotelHandler.HandleGetHotels)
 	apiv1.Get("hotels/:id/rooms", hotelHandler.HandleGetRooms)

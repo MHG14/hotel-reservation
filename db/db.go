@@ -1,9 +1,7 @@
 package db
 
 const (
-	DBUri      = "mongodb://localhost:27017/hotel-reservation"
-	DBName     = "hotel-reservation"
-	TestDBName = "hotel-reservation-test"
+	MongoDBEnvName     = "MONGO_DB_NAME"
 )
 
 type Pagination struct {

@@ -2,25 +2,30 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/mhg14/hotel-reservation/api"
 	"github.com/mhg14/hotel-reservation/db"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Configuration
+// 1. MongoDB endpoint
+// 2. ListenAddress of http server
+// 3. JWT secret
+// 4. MongoDB name
+
 var config = fiber.Config(fiber.Config{
 	ErrorHandler: api.ErrorHandler,
 })
 
 func main() {
-	listenPort := flag.String("listenPort", ":5000", "The listen port of the api server")
-	flag.Parse()
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBUri))
+	mongoURI := os.Getenv("MONGO_DB_URI")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +64,6 @@ func main() {
 	apiv1.Put("/users/:id", userHandler.HandlePutUser)
 	apiv1.Delete("/users/:id", userHandler.HandleDeleteUser)
 
-
 	// hotel handlers
 	apiv1.Get("hotels", hotelHandler.HandleGetHotels)
 	apiv1.Get("hotels/:id/rooms", hotelHandler.HandleGetRooms)
@@ -76,5 +80,12 @@ func main() {
 	// admin handlers
 	admin.Get("/bookings", bookingHandler.HandleGetBookings)
 
-	app.Listen(*listenPort)
+	listenPort := os.Getenv("HTTP_LISTEN_PORT")
+	app.Listen(listenPort)
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -7,6 +7,11 @@ run: build
 test:
 	@go test -v ./...
 
+docker:
+	echo "building docker file"
+	@docker build -t api .
+	echo "running api inside docker container"
+	@docker run -p 3000:3000 api
 
 seed:
 	@go run scripts/seed.go
